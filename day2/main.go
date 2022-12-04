@@ -16,26 +16,57 @@ func main() {
 
 	scanner := bufio.NewScanner(file)
 	var roundNumber = 1
-	var totalPoints = 0
+	var totalPointsPart1 = 0
+	var totalPointsPart2 = 0
 	for scanner.Scan() {
 		round := strings.Split(scanner.Text(), " ")
 		im := round[1]
 		opponent := round[0]
-		points := calculateResult(opponent, im)
-		log.Printf("[Round %d] Im: %s | Opponent: %s | Points: %d", roundNumber, im, opponent, points)
+		pointsPart1 := calculateResultPart1(opponent, im)
+		pointsPart2 := calculateResultPart2(opponent, im)
+		log.Printf("{Part1}[Round %d] Im: %s | Opponent: %s | Points: %d", roundNumber, im, opponent, pointsPart1)
+		log.Printf("{Part2}[Round %d] Result: %s | Opponent: %s | Points: %d", roundNumber, im, opponent, pointsPart2)
 		roundNumber = roundNumber + 1
-		totalPoints = totalPoints + points
+		totalPointsPart1 = totalPointsPart1 + pointsPart1
+		totalPointsPart2 = totalPointsPart2 + pointsPart2
 	}
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 
-	log.Printf("Total points: %d", totalPoints)
+	log.Printf("{part1}Total points: %d", totalPointsPart1)
+	log.Printf("{part2}Total points: %d", totalPointsPart2)
 }
 
-func calculateResult(opponent, im string) int {
-	shapePoints := getPointsByShape(im)
+func calculateResultPart2(opponent, roundEnd string) int {
+	switch {
+	case roundEnd == "X":
+		switch {
+		case opponent == "A":
+			return 0 + getPointsByShapePart2("C")
+		case opponent == "B":
+			return 0 + getPointsByShapePart2("A")
+		case opponent == "C":
+			return 0 + getPointsByShapePart2("B")
+		}
+	case roundEnd == "Y":
+		return 3 + getPointsByShapePart2(opponent)
+	case roundEnd == "Z":
+		switch {
+		case opponent == "A":
+			return 6 + getPointsByShapePart2("B")
+		case opponent == "B":
+			return 6 + getPointsByShapePart2("C")
+		case opponent == "C":
+			return 6 + getPointsByShapePart2("A")
+		}
+	}
+	return 0
+}
+
+func calculateResultPart1(opponent, im string) int {
+	shapePoints := getPointsByShapePart1(im)
 	switch {
 	case opponent == "A":
 		switch {
@@ -69,13 +100,25 @@ func calculateResult(opponent, im string) int {
 	return shapePoints
 }
 
-func getPointsByShape(shape string) int {
+func getPointsByShapePart1(shape string) int {
 	switch {
 	case shape == "X":
 		return 1
 	case shape == "Y":
 		return 2
 	case shape == "Z":
+		return 3
+	}
+	return 0
+}
+
+func getPointsByShapePart2(shape string) int {
+	switch {
+	case shape == "A":
+		return 1
+	case shape == "B":
+		return 2
+	case shape == "C":
 		return 3
 	}
 	return 0
